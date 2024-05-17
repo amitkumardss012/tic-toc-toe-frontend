@@ -23,6 +23,7 @@ function TicTokToe() {
     const [game, setGame] = useState(tic_toc_toe);
     const [currentPlayer, setCurrentPlayer] = useState("circle");
     const [finish, setFinish] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [winner, setWinner] = useState("");
     const [finishedArrayState, setFinishedArrayState] = useState([]);
     const [opponentLeftMatch, setOpponentLeftMatch] = useState(false)
@@ -132,25 +133,32 @@ function TicTokToe() {
     });
 
     const handlePlayOnline = async () => {
-        const newSocket = io("https://tic-toc-toe-backend.onrender.com", {
-            autoConnect: true,
-            transports: ['websocket'],
-            reconnection: true,
-            reconnectionAttempts: 10,
-            reconnectionDelay: 1000,
-            timeout: 20000,
-            secure: true,
-        });
-        newSocket?.emit("request_to_play", {
-            playerName: userDetals?.name,
-        });
+        setLoading(true)
+        try {
+            const newSocket = io("https://tic-toc-toe-backend.onrender.com", {
+                autoConnect: true,
+                transports: ['websocket'],
+                reconnection: true,
+                reconnectionAttempts: 10,
+                reconnectionDelay: 1000,
+                timeout: 20000,
+                secure: true,
+            });
+            newSocket?.emit("request_to_play", {
+                playerName: userDetals?.name,
+            });
 
-        setSocket(newSocket)
+            setSocket(newSocket)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (!playOnline) {
         return <div className="w-full h-full flex items-center justify-center flex-col gap-5">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={handlePlayOnline}>Play online</button>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={handlePlayOnline}>{loading ? "Matching......" : "Play online"}</button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={() => navigate("/play/offline")}>Play offline</button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={async () => {
                 const res = await axios.get("https://tic-toc-toe-backend.vercel.app/logout", { withCredentials: true });
