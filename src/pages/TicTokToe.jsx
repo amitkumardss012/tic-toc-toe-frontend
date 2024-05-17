@@ -115,9 +115,7 @@ function TicTokToe() {
 
     // console.log("opponentLeftMatch", opponentLeftMatch)
 
-    socket?.on("connect", function () {
-        setPlayOnline(true);
-    });
+
 
     socket?.on("OpponentNotFound", function () {
         setOpponentName(false);
@@ -131,6 +129,16 @@ function TicTokToe() {
     const handlePlayOnline = async () => {
         const newSocket = io("https://tic-toc-toe-backend.vercel.app", {
             autoConnect: true,
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            timeout: 20000,
+            secure: true,
+        });
+
+        socket?.on("connect", function () {
+            setPlayOnline(true);
         });
 
         newSocket?.emit("request_to_play", {
