@@ -97,6 +97,11 @@ function TicTokToe() {
         }
     }, [])
 
+    socket?.on("connect", function () {
+        setPlayOnline(true);
+    });
+
+
     socket?.on("playerMoveFromServer", (data) => {
         const id = data.state.id;
         setGame((prevState) => {
@@ -127,7 +132,7 @@ function TicTokToe() {
     });
 
     const handlePlayOnline = async () => {
-        const newSocket = io("https://tic-toc-toe-backend.vercel.app", {
+        const newSocket = io("https://tic-toc-toe-backend.onrender.com", {
             autoConnect: true,
             transports: ['websocket'],
             reconnection: true,
@@ -136,11 +141,6 @@ function TicTokToe() {
             timeout: 20000,
             secure: true,
         });
-
-        socket?.on("connect", function () {
-            setPlayOnline(true);
-        });
-
         newSocket?.emit("request_to_play", {
             playerName: userDetals?.name,
         });

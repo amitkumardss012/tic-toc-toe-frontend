@@ -19,7 +19,7 @@ export function Login() {
         setLoading(true);
         try {
             const res = await axios.post(
-                "https://tic-toc-toe-backend.vercel.app/login",
+                "https://tic-toc-toe-backend.onrender.com/login",
                 { email, password },
                 {
                     headers: { "Content-Type": "application/json" },

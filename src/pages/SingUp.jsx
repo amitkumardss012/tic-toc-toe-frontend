@@ -22,7 +22,7 @@ export function SignUp() {
         setLoading(true);
         try {
             const res = await axios.post(
-                "https://tic-toc-toe-backend.vercel.app/signup",
+                "https://tic-toc-toe-backend.onrender.com/signup",
                 { name, email, password },
                 {
                     headers: { "Content-Type": "application/json" },
