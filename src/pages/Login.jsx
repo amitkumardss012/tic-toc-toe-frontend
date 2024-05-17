@@ -19,7 +19,7 @@ export function Login() {
         setLoading(true);
         try {
             const res = await axios.post(
-                "http://localhost:4000/login",
+                "https://tic-toc-toe-backend.vercel.app/login",
                 { email, password },
                 {
                     headers: { "Content-Type": "application/json" },

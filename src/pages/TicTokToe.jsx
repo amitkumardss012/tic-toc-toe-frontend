@@ -129,7 +129,7 @@ function TicTokToe() {
     });
 
     const handlePlayOnline = async () => {
-        const newSocket = io("http://localhost:4000", {
+        const newSocket = io("https://tic-toc-toe-backend.vercel.app", {
             autoConnect: true,
         });
 
@@ -145,7 +145,7 @@ function TicTokToe() {
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={handlePlayOnline}>Play online</button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={() => navigate("/play/offline")}>Play offline</button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={async () => {
-                const res = await axios.get("http://localhost:4000/logout", { withCredentials: true });
+                const res = await axios.get("https://tic-toc-toe-backend.vercel.app/logout", { withCredentials: true });
                 localStorage.removeItem("user")
                 navigate("/")
                 console.log(res.data)
