@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
 import { Square } from "../components/Square";
 import { Navigate, json, useNavigate } from "react-router-dom";
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 import axios from "axios";
 
 const tic_toc_toe = [
@@ -18,7 +18,6 @@ const tic_toc = [
     [null, null, null],
 ];
 
-
 function TicTokToe() {
     const [game, setGame] = useState(tic_toc_toe);
     const [currentPlayer, setCurrentPlayer] = useState("circle");
@@ -26,16 +25,16 @@ function TicTokToe() {
     const [loading, setLoading] = useState(false);
     const [winner, setWinner] = useState("");
     const [finishedArrayState, setFinishedArrayState] = useState([]);
-    const [opponentLeftMatch, setOpponentLeftMatch] = useState(false)
+    const [opponentLeftMatch, setOpponentLeftMatch] = useState(false);
     const [playOnline, setPlayOnline] = useState(false);
     const [socket, setSocket] = useState(null);
     const [playerName, setPlayerName] = useState("");
     const [opponentName, setOpponentName] = useState(null);
     const [playingAs, setPlayingAs] = useState(null);
-    const [userDetals, setUserDetails] = useState(null)
+    const [userDetals, setUserDetails] = useState(null);
+    const [logoutLoading, setLogoutLoading] = useState(false);
 
     const navigate = useNavigate();
-
 
     const checkWinner = () => {
         // row dynamic winner check
@@ -90,18 +89,17 @@ function TicTokToe() {
     }, [game]);
 
     useEffect(() => {
-        const userString = localStorage.getItem('user');
+        const userString = localStorage.getItem("user");
         const user = JSON.parse(userString);
-        setUserDetails(user)
+        setUserDetails(user);
         if (!user) {
-            return <Navigate to={"/"} />
+            navigate("/");
         }
-    }, [])
+    }, []);
 
     socket?.on("connect", function () {
         setPlayOnline(true);
     });
-
 
     socket?.on("playerMoveFromServer", (data) => {
         const id = data.state.id;
@@ -116,12 +114,12 @@ function TicTokToe() {
     });
 
     socket?.on("opponentLeftMatch", () => {
-        setOpponentLeftMatch("opponent has left the match now you can also quit the game");
+        setOpponentLeftMatch(
+            "opponent has left the match now you can also quit the game"
+        );
     });
 
     // console.log("opponentLeftMatch", opponentLeftMatch)
-
-
 
     socket?.on("OpponentNotFound", function () {
         setOpponentName(false);
@@ -133,11 +131,11 @@ function TicTokToe() {
     });
 
     const handlePlayOnline = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const newSocket = io("https://tic-toc-toe-backend.onrender.com", {
                 autoConnect: true,
-                transports: ['websocket'],
+                transports: ["websocket"],
                 reconnection: true,
                 reconnectionAttempts: 10,
                 reconnectionDelay: 1000,
@@ -148,44 +146,78 @@ function TicTokToe() {
                 playerName: userDetals?.name,
             });
 
-            setSocket(newSocket)
+            setSocket(newSocket);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     if (!playOnline) {
-        return <div className="w-full h-full flex items-center justify-center flex-col gap-5">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={handlePlayOnline}>{loading ? "Matching......" : "Play online"}</button>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={() => navigate("/play/offline")}>Play offline</button>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32" onClick={async () => {
-                const res = await axios.get("https://tic-toc-toe-backend.vercel.app/logout", { withCredentials: true });
-                localStorage.removeItem("user")
-                navigate("/")
-                console.log(res.data)
-            }}>Log out</button>
-            <h1 className="text-2xl font-bold">{userDetals?.name}</h1>
-        </div>
+        return (
+            <div className="w-full h-full flex items-center justify-center flex-col gap-5">
+                <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32"
+                    onClick={handlePlayOnline}
+                >
+                    {loading ? "Matching......" : "Play online"}
+                </button>
+                <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-32"
+                    onClick={() => navigate("/play/offline")}
+                >
+                    Play offline
+                </button>
+                <button
+                    className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  ${logoutLoading ? "w-44" : "w-32"}`}
+                    onClick={async () => {
+                        try {
+                            setLogoutLoading(true)
+                            const res = await axios.get(
+                                "https://tic-toc-toe-backend.vercel.app/logout",
+                                { withCredentials: true }
+                            );
+                            localStorage.removeItem("user");
+                            navigate("/");
+                            console.log(res.data);
+                        } catch (error) {
+                            console.log(error)
+                        } finally {
+                            setLogoutLoading(false)
+                        }
+                    }}
+                >
+                    {logoutLoading ? "Logging out......" : "Logout"}
 
+                </button>
+                <h1 className="text-2xl font-bold">{userDetals?.name}</h1>
+            </div>
+        );
     }
 
     if (playOnline && !opponentName) {
-        return <div className="w-full h-full flex justify-center items-center bg-[#4B495f] text-white">
-            <h1 className="text-2xl font-bold">Waiting for opponent .....</h1>
-        </div>
+        return (
+            <div className="w-full h-full flex justify-center items-center bg-[#4B495f] text-white">
+                <h1 className="text-2xl font-bold">Waiting for opponent .....</h1>
+            </div>
+        );
     }
-
 
     return (
         <>
             <div className="bg-[#4B495f] flex flex-col  h-full justify-center items-center">
                 <div className="flex gap-40 mb-20">
-                    <h1 className={`text-white text-lg font-semibold ${currentPlayer === playingAs ? "bg-[#DD7F9F]" : ""}`}>
+                    <h1
+                        className={`text-white text-lg font-semibold ${currentPlayer === playingAs ? "bg-[#DD7F9F]" : ""
+                            }`}
+                    >
                         {userDetals?.name}
                     </h1>
-                    <div className={`text-white text-lg font-semibold ${currentPlayer !== playingAs ? "bg-[#3FA7F0]" : ""}`}>
+                    <div
+                        className={`text-white text-lg font-semibold ${currentPlayer !== playingAs ? "bg-[#3FA7F0]" : ""
+                            }`}
+                    >
                         {opponentName}
                     </div>
                 </div>
@@ -219,15 +251,33 @@ function TicTokToe() {
                         <button
                             className="text-white bg-blue-700 h-10 w-40 mt-5 text-xl font-bold"
                             onClick={() => {
-                                navigate(0)
+                                navigate(0);
                             }}
                         >
                             Restart
                         </button>
                     </>
                 )}
-                {opponentName && <span className="mt-5 text-xl text-center font-bold text-white">your opponent is {opponentName}</span>}
-                {opponentLeftMatch && <span className="mt-5 text-xl text-red-500 font-bold text-center p-6">{opponentLeftMatch}</span>}
+                {opponentName && (
+                    <span className="mt-5 text-xl text-center font-bold text-white">
+                        your opponent is {opponentName}
+                    </span>
+                )}
+                {opponentLeftMatch && (
+                    <div className="flex flex-col justify-center items-center">
+                        <span className="mt-5 text-xl text-red-500 font-bold text-center p-6">
+                            {opponentLeftMatch}
+                        </span>
+                        <button
+                            className="text-white bg-blue-700 h-10 w-40 mt-5 text-xl font-bold"
+                            onClick={() => {
+                                navigate(0);
+                            }}
+                        >
+                            Restart
+                        </button>
+                    </div>
+                )}
             </div>
         </>
     );
