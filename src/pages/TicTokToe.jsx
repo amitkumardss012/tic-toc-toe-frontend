@@ -244,7 +244,7 @@ function TicTokToe() {
                 </div>
                 {winner && (
                     <>
-                        <span className="text-3xl text-yellow-300 font-bold mt-10">
+                        <span className="text-3xl text-yellow-300 font-bold mt-10 text-center">
                             {/* {winner === "draw" ? "It's a draw!" : `${winner} won the game`} */}
                             {winner === playingAs ? "You" : opponentName} won the match
                         </span>
